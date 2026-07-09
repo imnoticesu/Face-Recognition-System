@@ -4,6 +4,6 @@ gunicorn
 opencv-python-headless
 deepface==0.0.79
 tensorflow==2.13.0
-tf-keras==2.13.0
+tf-keras==2.15.0
 numpy<2
 python-multipart
