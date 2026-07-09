@@ -1,0 +1,14 @@
+[
+  {
+    "time": "2026-07-09T13:18:44",
+    "name": "UNKNOWN",
+    "snapshot": "D:\\ai_face_verification4\\snapshots\\UNKNOWN\\UNKNOWN_20260709_131844.jpg",
+    "status": "unknown"
+  },
+  {
+    "time": "2026-07-09T13:18:54",
+    "name": "ice",
+    "snapshot": "D:\\ai_face_verification4\\snapshots\\ice\\ice_20260709_131854.jpg",
+    "status": "known"
+  }
+]

@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Face Verification Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #2f5fe0;
+    --primary-hover: #1f46b8;
+    --primary-light: #eaf0ff;
+    --success: #10b981;
+    --success-light: #e8f7ee;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+    --danger: #ef4444;
+    --danger-light: #fee2e2;
+    --purple: #8b5cf6;
+    --purple-light: #f3e8ff;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --text-dim: #64748b;
+    --radius: 12px;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', 'Sarabun', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header styles */
+  header {
+    background-color: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--text);
+  }
+
+  .brand .logo-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary), #5b8cff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(47, 95, 224, 0.3);
+  }
+
+  nav {
+    display: flex;
+    gap: 6px;
+    margin-left: 40px;
+  }
+
+  nav a {
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 14.5px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  nav a:hover {
+    color: var(--text);
+    background-color: #f1f5f9;
+  }
+
+  nav a.active {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+  }
+
+  .status-pill.offline {
+    background-color: var(--danger-light);
+    color: var(--danger);
+    border-color: rgba(239, 68, 68, 0.1);
+  }
+
+  .status-pill.online {
+    background-color: var(--success-light);
+    color: var(--success);
+    border-color: rgba(16, 185, 129, 0.1);
+  }
+
+  .status-pill .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+    position: relative;
+  }
+
+  .status-pill.online .dot::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+    animation: ripple 1.5s infinite ease-in-out;
+    left: 0;
+    top: 0;
+  }
+
+  @keyframes ripple {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  .icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: #fff;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .icon-btn:hover {
+    background-color: #f1f5f9;
+    color: var(--text);
+    border-color: #cbd5e1;
+  }
+
+  /* Main Container */
+  main {
+    padding: 30px 40px;
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Page Title Panel */
+  .page-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .page-title h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .page-title .sub {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .actions-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    background-color: #fff;
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  .btn.primary {
+    background-color: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 4px 6px -1px rgba(47, 95, 224, 0.15);
+  }
+
+  .btn.primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+  }
+
+  .btn.danger {
+    background-color: #fff;
+    color: var(--danger);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+
+  .btn.danger:hover {
+    background-color: var(--danger-light);
+    border-color: var(--danger);
+  }
+
+  /* View Container Sections */
+  .view-section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .view-section.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Filter Panel */
+  .filters {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) auto auto;
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+
+  .field input, .field select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background-color: #fff;
+  }
+
+  .field input:focus, .field select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(47, 95, 224, 0.1);
+  }
+
+  /* Stats Summary Cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .stat-card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 110px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .stat-card .label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .stat-card .value {
+    font-size: 38px;
+    font-weight: 700;
+    margin: 6px 0;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-card .desc {
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+
+  /* Layout grids */
+  .dashboard-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .panel {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Search and Table filter tabs */
+  .search-tabs {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .search-tabs input {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13.5px;
+    width: 180px;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .search-tabs input:focus {
+    border-color: var(--primary);
+    width: 220px;
+  }
+
+  .tab-btn {
+    border: 1px solid var(--border);
+    background-color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-dim);
+  }
+
+  .tab-btn:hover {
+    background-color: #f8fafc;
+    color: var(--text);
+  }
+
+  .tab-btn.active {
+    background-color: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+
+  /* Table styling */
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead th {
+    text-align: left;
+    padding: 14px 20px;
+    color: var(--text-dim);
+    font-size: 12.5px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    background-color: #f8fafc;
+    letter-spacing: 0.02em;
+  }
+
+  tbody td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+
+  tbody tr:hover {
+    background-color: #fafbfc;
+  }
+
+  .thumb-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .thumb {
+    width: 46px;
+    height: 46px;
+    border-radius: 8px;
+    object-fit: cover;
+    background-color: #f1f5f9;
+    border: 1px solid var(--border);
+    transition: transform 0.2s ease;
+  }
+
+  .thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  .badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .badge.known {
+    background-color: var(--success-light);
+    color: var(--success);
+  }
+
+  .badge.unknown {
+    background-color: var(--danger-light);
+    color: var(--danger);
+  }
+
+  .empty-row td {
+    text-align: center;
+    padding: 80px 0 !important;
+    color: var(--text-dim);
+    font-size: 14.5px;
+  }
+
+  /* Camera Card panel */
+  .cam-box {
+    padding: 20px;
+  }
+
+  .cam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .cam-header h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .cam-header .fps {
+    font-size: 12px;
+    background-color: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+
+  .cam-video {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-color: #0b0f19;
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #1e293b;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+    position: relative;
+  }
+
+  .cam-video img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .cam-video .placeholder {
+    color: #94a3b8;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .cam-video .placeholder svg {
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  .cam-caption {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* Register form panel */
+  .register-panel {
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .register-panel h4 {
+    margin-bottom: 14px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .register-panel .form-group {
+    margin-bottom: 16px;
+  }
+
+  .register-panel label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .register-panel input[type=text] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .register-panel input[type=text]:focus {
+    border-color: var(--primary);
+  }
+
+  #reg-status {
+    font-size: 13px;
+    margin-top: 10px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  #reg-shots {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  #reg-shots img {
+    width: 58px;
+    height: 58px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--primary-light);
+    box-shadow: var(--shadow);
+    animation: scaleIn 0.2s ease;
+  }
+
+  @keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* --- VIEW: LIVE CAMERA LARGE --- */
+  .live-camera-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+  }
+
+  .large-cam-card {
+    padding: 24px;
+  }
+
+  .large-cam-video {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-color: #0b0f19;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid #1e293b;
+  }
+
+  .large-cam-video img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .in-view-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .in-view-card {
+    padding: 20px;
+    height: 100%;
+  }
+
+  .in-view-card h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+
+  .in-view-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 480px;
+    overflow-y: auto;
+  }
+
+  .in-view-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    border: 1px solid var(--border);
+  }
+
+  .in-view-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--text-dim);
+    object-fit: cover;
+  }
+
+  .in-view-info {
+    flex: 1;
+  }
+
+  .in-view-name {
+    font-weight: 600;
+    font-size: 13.5px;
+  }
+
+  .in-view-role {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* --- VIEW: STAFF & VISITORS --- */
+  .staff-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .staff-card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .staff-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .staff-card .profile-img {
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-light);
+    margin-bottom: 14px;
+    background-color: #f1f5f9;
+  }
+
+  .staff-card h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .staff-card .photo-cnt {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    background-color: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    font-weight: 500;
+  }
+
+  .staff-card .delete-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .staff-card .delete-btn:hover {
+    background-color: var(--danger-light);
+    color: var(--danger);
+  }
+
+  /* --- VIEW: CONFIG --- */
+  .config-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .config-section {
+    padding: 24px;
+  }
+
+  .config-section h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    color: var(--text);
+  }
+
+  .config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .range-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .range-container input[type=range] {
+    flex: 1;
+    height: 6px;
+    background: #cbd5e1;
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .range-container input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .range-val {
+    min-width: 46px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 14px;
+    background-color: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .checkbox-container input[type=checkbox] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+  }
+
+  /* Toast Notification */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toast {
+    background-color: var(--text);
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .toast.success {
+    background-color: var(--success);
+  }
+
+  .toast.error {
+    background-color: var(--danger);
+  }
+
+  .toast.info {
+    background-color: var(--primary);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex; align-items:center;">
+    <div class="brand">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 11c0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4 4 1.8 4 4z"/>
+          <path d="M16 21v-2a4 4 0 0 0-4-4H4a4 4 0 0 0-4 4v2"/>
+          <circle cx="18" cy="7" r="2"/>
+          <path d="M22 13v2a2 2 0 0 1-2 2h-2"/>
+          <path d="M18 10a4.5 4.5 0 0 0-4.5 4.5"/>
+        </svg>
+      </div>
+      AI Face Verification
+    </div>
+    <nav>
+      <a class="nav-tab active" data-target="view-dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-tab" data-target="view-live-camera">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        กล้องสด (Live Camera)
+      </a>
+      <a class="nav-tab" data-target="view-staff-visitors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        พนักงานเข้าสู่ระบบ
+      </a>
+      <a class="nav-tab" data-target="view-attendance">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
+        บันทึกเข้างาน
+      </a>
+      <a class="nav-tab" data-target="view-config">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        การตั้งค่าระบบ (Config)
+      </a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div class="status-pill offline" id="status-pill"><span class="dot"></span><span id="status-text">Offline</span></div>
+    <button class="icon-btn" title="รีเฟรชข้อมูลแดชบอร์ด" onclick="loadDashboard()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- --- PAGE: DASHBOARD --- -->
+  <div id="view-dashboard" class="view-section active">
+    <div class="page-title">
+      <div>
+        <h1>Dashboard</h1>
+        <div class="sub" id="range-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          —
+        </div>
+      </div>
+      <div class="actions-row">
+        <button class="btn" onclick="loadDashboard()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Refresh
+        </button>
+        <button class="btn" onclick="exportCSV()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <div class="filters" style="margin-top: 14px; margin-bottom: 24px;">
+      <div class="field"><label>วันที่เริ่ม</label><input type="date" id="f-start-date"></div>
+      <div class="field"><label>เวลาเริ่ม</label><input type="time" id="f-start-time" value="00:00"></div>
+      <div class="field"><label>วันที่สิ้นสุด</label><input type="date" id="f-end-date"></div>
+      <div class="field"><label>เวลาสิ้นสุด</label><input type="time" id="f-end-time" value="23:59"></div>
+      <button class="btn primary" style="height:42px;" onclick="loadDashboard()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        แสดงข้อมูล
+      </button>
+      <button class="btn" style="height:42px;" onclick="setToday()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        วันนี้
+      </button>
+    </div>
+
+    <div class="stats-grid" style="margin-bottom: 24px;">
+      <div class="stat-card" style="--accent:var(--primary)">
+        <div>
+          <div class="label">Total Captured</div>
+          <div class="value" id="stat-total">0</div>
+        </div>
+        <div class="desc">ภาพใบหน้าสแกนสะสมวันนี้</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--warning)">
+        <div>
+          <div class="label">Visitors (Unknown)</div>
+          <div class="value" id="stat-unknown">0</div>
+        </div>
+        <div class="desc">บุคคลทั่วไป / ไม่ทราบชื่อ</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--purple)">
+        <div>
+          <div class="label">In Camera View</div>
+          <div class="value" id="stat-inview">0</div>
+        </div>
+        <div class="desc">กำลังอยู่หน้ากล้องตอนนี้</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--success)">
+        <div>
+          <div class="label">Staff Identified</div>
+          <div class="value" id="stat-known">0</div>
+        </div>
+        <div class="desc">พนักงานที่ยืนยันตัวตนสำเร็จ</div>
+      </div>
+    </div>
+
+    <div class="dashboard-layout">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            รายการสแกนทั้งหมด (All Sessions)
+          </h3>
+          <div class="search-tabs">
+            <input type="text" id="search-box" placeholder="ค้นหาชื่อ..." oninput="renderTable()">
+            <button class="tab-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+            <button class="tab-btn" data-filter="unknown" onclick="setFilter('unknown')">Unknown</button>
+            <button class="tab-btn" data-filter="known" onclick="setFilter('known')">Known</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 80px;">ลำดับ (ID)</th>
+                <th>ภาพสแกนใบหน้า</th>
+                <th>ภาพประวัติในระบบ</th>
+                <th>ชื่อผู้พบ (NAME)</th>
+                <th>ประเภทบุคคล</th>
+                <th>เวลาที่พบ</th>
+                <th>ผลตรวจสอบ</th>
+              </tr>
+            </thead>
+            <tbody id="log-tbody">
+              <tr class="empty-row"><td colspan="7">ไม่พบรายการสแกนใบหน้าวันนี้</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel cam-box">
+          <div class="cam-header">
+            <h3>🔴 กล้องหลัก Face Capture</h3>
+            <span class="fps" id="fps-label">FPS: 0</span>
+          </div>
+          <div class="cam-video">
+            <img id="cam-img" src="/video_feed" onerror="camError()" alt="live camera feed">
+          </div>
+          <div class="cam-caption">กล้องตรวจจับและบันทึกใบหน้าบุคคลแบบเรียลไทม์</div>
+        </div>
+
+        <div class="panel register-panel">
+          <h4>ลงทะเบียนด่วน (Quick Register)</h4>
+          <div class="form-group">
+            <label>ชื่อผู้ลงทะเบียน (ภาษาอังกฤษ)</label>
+            <input type="text" id="reg-name" placeholder="เช่น Somchai_D">
+          </div>
+          <button class="btn primary" style="width:100%; justify-content:center; height: 42px;" onclick="startRegister()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            เริ่มจับภาพสแกน
+          </button>
+          <div id="reg-status"></div>
+          <div id="reg-shots"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- --- PAGE: LIVE CAMERA LARGE --- -->
+  <div id="view-live-camera" class="view-section">
+    <div class="page-title" style="margin-bottom: 20px;">
+      <div>
+        <h1>กล้องสด (Live Camera)</h1>
+        <div class="sub">กล้องตัวหลักของสาขา ตรวจจับและเปรียบเทียบใบหน้าในเฟรมทันที</div>
+      </div>
+    </div>
+
+    <div class="live-camera-layout">
+      <div class="panel large-cam-card">
+        <div class="cam-header" style="margin-bottom: 16px;">
+          <h3>🔴 Main CCTV Stream</h3>
+          <span class="fps" id="large-fps-label" style="font-size: 13px; padding: 6px 12px;">FPS: 0</span>
+        </div>
+        <div class="large-cam-video">
+          <img id="large-cam-img" src="/video_feed" onerror="camError()" alt="live camera feed">
+        </div>
+      </div>
+
+      <div class="in-view-sidebar">
+        <div class="panel in-view-card">
+          <h4>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            อยู่หน้ากล้องขณะนี้ (<span id="in-view-side-count">0</span>)
+          </h4>
+          <div class="in-view-list" id="in-view-list-container">
+            <div style="padding: 40px 0; text-align: center; color: var(--text-dim); font-size: 13px;">ไม่มีใครอยู่หน้ากล้องขณะนี้</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- --- PAGE: STAFF & VISITORS --- -->
+  <div id="view-staff-visitors" class="view-section">
+    <div class="staff-header">
+      <div>
+        <h1>พนักงานเข้าสู่ระบบ</h1>
+        <div class="sub" id="staff-count-label">โหลดรายชื่อ...</div>
+      </div>
+      <div class="search-tabs">
+        <input type="text" id="staff-search" placeholder="ค้นหารายชื่อพนักงาน..." oninput="renderStaffGrid()" style="width: 260px;">
+      </div>
+    </div>
+
+    <div class="staff-grid" id="staff-grid-container">
+      <!-- Staff cards will be inserted here dynamically -->
+    </div>
+  </div>
+
+  <!-- --- PAGE: ATTENDANCE (บันทึกเข้างาน) --- -->
+  <div id="view-attendance" class="view-section">
+    <div class="staff-header">
+      <div>
+        <h1>บันทึกเวลาเข้า-ออกงาน</h1>
+        <div class="sub">พนักงานเดินผ่านกล้อง ระบบบันทึกเวลาเข้า-ออกอัตโนมัติ</div>
+      </div>
+      <div class="search-tabs" style="gap:10px; align-items:center;">
+        <input type="date" id="att-date" onchange="loadAttendance()">
+        <button class="icon-btn" title="รีเฟรช" onclick="loadAttendance()">↻</button>
+        <button class="icon-btn" title="ดาวน์โหลด CSV" onclick="exportAttendanceCSV()">⬇ CSV</button>
+      </div>
+    </div>
+
+    <div class="metrics-row" style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">
+      <div class="metric-card" style="flex:1; min-width:150px;">
+        <div class="num" id="att-present" style="font-size:28px; font-weight:700;">0</div>
+        <div class="desc">มาทำงานวันนี้</div>
+      </div>
+      <div class="metric-card" style="flex:1; min-width:150px;">
+        <div class="num" id="att-stillin" style="font-size:28px; font-weight:700;">0</div>
+        <div class="desc">ยังไม่ออก (อยู่ในออฟฟิศ)</div>
+      </div>
+      <div class="metric-card" style="flex:1; min-width:150px;">
+        <div class="num" id="att-strangers" style="font-size:28px; font-weight:700;">0</div>
+        <div class="desc">คนแปลกหน้า</div>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="background:var(--panel,#161b22); border:1px solid var(--border,#2a3240); border-radius:12px; padding:16px; margin-bottom:20px;">
+      <h3 style="margin:0 0 12px; color:#e6edf3;">ตารางเข้างาน</h3>
+      <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        <thead>
+          <tr style="text-align:left; color:var(--text-dim,#8b98a9); font-size:12px;">
+            <th style="padding:10px;">ชื่อ</th>
+            <th style="padding:10px;">เวลาเข้า</th>
+            <th style="padding:10px;">เวลาออก</th>
+            <th style="padding:10px;">ชั่วโมงทำงาน</th>
+            <th style="padding:10px;">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody id="att-body">
+          <tr><td colspan="5" style="padding:14px; color:var(--text-dim,#8b98a9);">ยังไม่มีข้อมูล</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-wrap" style="background:var(--panel,#161b22); border:1px solid var(--border,#2a3240); border-radius:12px; padding:16px;">
+      <h3 style="margin:0 0 12px; color:#e6edf3;">⚠️ คนแปลกหน้าที่เดินผ่าน</h3>
+      <div id="att-strangers-list" style="display:flex; flex-wrap:wrap; gap:10px;">
+        <span style="color:var(--text-dim,#8b98a9);">ไม่มี</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- --- PAGE: CONFIG --- -->
+  <div id="view-config" class="view-section">
+    <div class="page-title" style="margin-bottom: 24px;">
+      <div>
+        <h1>การตั้งค่าระบบ (Configuration)</h1>
+        <div class="sub">ปรับแต่งค่าตัวตรวจจับใบหน้า โมเดล DeepFace และแหล่งข้อมูลกล้อง</div>
+      </div>
+    </div>
+
+    <div class="config-grid">
+      <div class="panel config-section">
+        <h4>🔍 การตั้งค่า AI Detector & Verification</h4>
+        <form class="config-form" onsubmit="saveConfig(event)">
+          <div class="field">
+            <label>AI Verification Model</label>
+            <input type="text" id="cfg-model" value="Facenet" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: 600;">
+          </div>
+          <div class="field">
+            <label>Face Detector Backend</label>
+            <input type="text" id="cfg-detector" value="opencv" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: 600;">
+          </div>
+          <div class="field">
+            <label>Distance Threshold (ยิ่งน้อยยิ่งตรวจความแม่นยำเปรียบเทียบหน้าสูง)</label>
+            <div class="range-container">
+              <input type="range" id="cfg-distance-thresh" min="0.1" max="1.0" step="0.01" oninput="document.getElementById('val-distance-thresh').textContent = this.value">
+              <span class="range-val" id="val-distance-thresh">0.55</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Min Detection Confidence (ค่าความเชื่อมั่นขั้นต่ำของใบหน้า)</label>
+            <div class="range-container">
+              <input type="range" id="cfg-min-confidence" min="0.5" max="1.0" step="0.01" oninput="document.getElementById('val-min-confidence').textContent = this.value">
+              <span class="range-val" id="val-min-confidence">0.90</span>
+            </div>
+          </div>
+          <button type="submit" class="btn primary" style="justify-content: center; height: 42px; margin-top: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            บันทึกการตั้งค่า AI
+          </button>
+        </form>
+      </div>
+
+      <div class="panel config-section">
+        <h4>⚙️ การตั้งค่า Tracker & ระบบ</h4>
+        <form class="config-form" onsubmit="saveSystemConfig(event)">
+          <div class="field">
+            <label>Camera Source (Index กล้องเว็บแคม หรือ RTSP URL)</label>
+            <input type="text" id="cfg-camera-source" placeholder="เช่น 0 หรือ rtsp://...">
+          </div>
+          <div class="field">
+            <label>Leave Timeout (ระยะเวลาหลังจากคนหายไปเพื่อสรุปว่าออกจากเฟรม - วินาที)</label>
+            <input type="number" id="cfg-leave-timeout" min="1" max="60" step="0.5">
+          </div>
+          <div class="field">
+            <label>Smooth Alpha (Exponential Moving Average smoothing - ยิ่งน้อยกรอบยิ่งนิ่งมาก)</label>
+            <div class="range-container">
+              <input type="range" id="cfg-smooth-alpha" min="0.05" max="1.0" step="0.05" oninput="document.getElementById('val-smooth-alpha').textContent = this.value">
+              <span class="range-val" id="val-smooth-alpha">0.40</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Process Every N Frames (การสแกนใบหน้าทุกๆ N เฟรม)</label>
+            <input type="number" id="cfg-process-every" min="1" max="30">
+          </div>
+          <div class="field">
+            <label>Scale (ย่อขนาดภาพลง N เท่าช่วยเร่งความเร็วในการวิเคราะห์ของ AI)</label>
+            <div class="range-container">
+              <input type="range" id="cfg-scale" min="0.1" max="1.0" step="0.1" oninput="document.getElementById('val-scale').textContent = this.value">
+              <span class="range-val" id="val-scale">0.5</span>
+            </div>
+          </div>
+          <div class="field" style="margin-top: 6px;">
+            <label class="checkbox-container">
+              <input type="checkbox" id="cfg-snap-unknown">
+              บันทึกภาพบุคคลที่ไม่รู้จัก (Snap Unknown Faces)
+            </label>
+          </div>
+          <button type="submit" class="btn primary" style="justify-content: center; height: 42px; margin-top: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            บันทึกการตั้งค่าระบบ
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container" id="toast-box"></div>
+
+<script>
+const API = ""; 
+let allEntries = [];
+let knownPeople = [];
+let currentFilter = "all";
+let ws = null;
+let activeView = "view-dashboard";
+
+// Date time utilities
+function pad(n){ return n.toString().padStart(2,"0"); }
+function todayStr(){ const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+
+function setToday(){
+  document.getElementById("f-start-date").value = todayStr();
+  document.getElementById("f-end-date").value = todayStr();
+  document.getElementById("f-start-time").value = "00:00";
+  document.getElementById("f-end-time").value = "23:59";
+  loadDashboard();
+}
+
+// Navigation Tab Logic
+document.querySelectorAll(".nav-tab").forEach(tab => {
+  tab.addEventListener("click", function(e) {
+    e.preventDefault();
+    const target = this.dataset.target;
+    if (!target) return;
+    
+    // Toggle active tab link
+    document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+    this.classList.add("active");
+    
+    // Toggle active view section
+    document.querySelectorAll(".view-section").forEach(sec => sec.classList.remove("active"));
+    document.getElementById(target).classList.add("active");
+    activeView = target;
+    
+    // Perform actions specific to views when entered
+    if (target === "view-dashboard") {
+      loadDashboard();
+      // Reset image sources to make sure live feed restarts nicely
+      document.getElementById("cam-img").src = `/video_feed?t=${Date.now()}`;
+    } else if (target === "view-live-camera") {
+      document.getElementById("large-cam-img").src = `/video_feed?t=${Date.now()}`;
+      pollStatus();
+    } else if (target === "view-staff-visitors") {
+      loadStaff();
+    } else if (target === "view-attendance") {
+      loadAttendance();
+    } else if (target === "view-config") {
+      loadConfig();
+    }
+  });
+});
+
+// Toast notification trigger
+function showToast(message, type = "success") {
+  const box = document.getElementById("toast-box");
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  
+  // Icon select
+  let icon = "";
+  if (type === "success") {
+    icon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+  } else if (type === "error") {
+    icon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  } else {
+    icon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+  }
+
+  toast.innerHTML = `${icon} <span>${message}</span>`;
+  box.appendChild(toast);
+  
+  // Trigger transition
+  setTimeout(() => toast.classList.add("show"), 50);
+  
+  // Remove after duration
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+// Table Filters
+function setFilter(f){
+  currentFilter = f;
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.filter === f));
+  renderTable();
+}
+
+// Helper to format YYYY-MM-DD to DD/MM/YY
+// แปลงวันที่ ISO (YYYY-MM-DD, ค.ศ.) เป็นรูปแบบไทย D/M/YYYY (พ.ศ.)
+function formatToDMY(dateStr) {
+  if (!dateStr) return "";
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) return dateStr;
+  const yearBE = parseInt(parts[0], 10) + 543;   // ค.ศ. → พ.ศ.
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+  return `${day}/${month}/${yearBE}`;
+}
+
+// Helper to format ISO time "YYYY-MM-DDTHH:MM:SS" to "DD/MM/YY HH:MM:SS"
+function formatTimeDMY(isoStr) {
+  if (!isoStr) return "";
+  const parts = isoStr.split("T");
+  const datePart = parts[0];
+  const timePart = parts[1] ? parts[1].substring(0, 8) : "";
+  return `${formatToDMY(datePart)} ${timePart}`;
+}
+
+// Load logs and metrics for Dashboard
+async function loadDashboard(){
+  const sd = document.getElementById("f-start-date").value || todayStr();
+  const ed = document.getElementById("f-end-date").value || todayStr();
+  const st = document.getElementById("f-start-time").value || "00:00";
+  const et = document.getElementById("f-end-time").value || "23:59";
+
+  document.getElementById("range-label").innerHTML = `
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    ${formatToDMY(sd)} ${st}:00 — ${formatToDMY(ed)} ${et}:59`;
+
+  try{
+    const res = await fetch(`${API}/api/logs?start_date=${sd}&end_date=${ed}&start_time=${st}:00&end_time=${et}:59`);
+    const data = await res.json();
+    document.getElementById("stat-total").textContent = data.summary.total_captured;
+    document.getElementById("stat-unknown").textContent = data.summary.visitors_unknown;
+    document.getElementById("stat-inview").textContent = data.summary.in_camera_view;
+    document.getElementById("stat-known").textContent = data.summary.staff_identified;
+    allEntries = data.entries;
+    renderTable();
+  }catch(e){
+    console.error("โหลด dashboard ไม่สำเร็จ", e);
+    showToast("ไม่สามารถดึงข้อมูลจากเซิร์ฟเวอร์ได้", "error");
+  }
+}
+
+// Render Dashboard Log Table
+function renderTable(){
+  const tbody = document.getElementById("log-tbody");
+  const q = document.getElementById("search-box").value.trim().toLowerCase();
+
+  let rows = allEntries.filter(e => {
+    if(currentFilter !== "all" && e.status !== currentFilter) return false;
+    if(q && !e.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if(rows.length === 0){
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">ไม่พบรายการสแกนใบหน้า</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((e, i) => {
+    const snapFilename = e.snapshot.split(/[\\/]/).pop();
+    const snapUrl = e.snapshot ? `/api/snapshot/${encodeURIComponent(e.name)}/${encodeURIComponent(snapFilename)}` : "";
+    const badgeClass = e.status === "known" ? "known" : "unknown";
+    const badgeLabel = e.status === "known" ? "ตรงกับฐานข้อมูล" : "ไม่พบข้อมูล";
+    
+    // First reference photo display
+    const profileUrl = e.status === "known" ? snapUrl : ""; 
+
+    return `
+      <tr>
+        <td style="font-weight: 600; color: var(--text-dim);">${i+1}</td>
+        <td>
+          <div class="thumb-container">
+            ${snapUrl ? `<img class="thumb" src="${snapUrl}" alt="scan snapshot">` : "-"}
+          </div>
+        </td>
+        <td>
+          <div class="thumb-container">
+            ${profileUrl ? `<img class="thumb" src="${profileUrl}" style="border-radius: 50%;" alt="database match">` : `<span style="color:var(--text-dim)">-</span>`}
+          </div>
+        </td>
+        <td style="font-weight: 600;">${e.name}</td>
+        <td>${e.status === "known" ? `<span style="color:var(--success);font-weight:500;">พนักงาน</span>` : `<span style="color:var(--warning);font-weight:500;">บุคคลทั่วไป</span>`}</td>
+        <td style="color:var(--text-dim); font-size:13px;">${formatTimeDMY(e.time)}</td>
+        <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+      </tr>`;
+  }).join("");
+}
+
+// Camera error handling & reconnect mechanism
+let camRetryTimer = null;
+function camError(){
+  const activeImgId = activeView === "view-live-camera" ? "large-cam-img" : "cam-img";
+  const imgElement = document.getElementById(activeImgId);
+  const container = imgElement.parentElement;
+  
+  if (!container.querySelector(".placeholder")) {
+    container.innerHTML = `
+      <div class="placeholder">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span>กล้องไม่ได้เชื่อมต่อ กำลังเชื่อมต่อใหม่...</span>
+      </div>`;
+  }
+  
+  if(camRetryTimer) clearTimeout(camRetryTimer);
+  camRetryTimer = setTimeout(() => {
+    container.innerHTML = `<img id="${activeImgId}" src="/video_feed?t=${Date.now()}" onerror="camError()" alt="live camera feed">`;
+  }, 3000);
+}
+
+// Poll Camera Connection Status and Live Stats
+async function pollStatus(){
+  try{
+    const res = await fetch(`${API}/api/status`);
+    const s = await res.json();
+    const pill = document.getElementById("status-pill");
+    const text = document.getElementById("status-text");
+    
+    if(s.camera_connected){
+      pill.className = "status-pill online";
+      text.textContent = "Online";
+    }else{
+      pill.className = "status-pill offline";
+      text.textContent = "Offline";
+    }
+    
+    const fpsText = `FPS: ${s.fps}`;
+    document.getElementById("fps-label").textContent = fpsText;
+    document.getElementById("large-fps-label").textContent = fpsText;
+    
+    const count = s.in_camera_view;
+    document.getElementById("stat-inview").textContent = count;
+    document.getElementById("in-view-side-count").textContent = count;
+    
+    // Update live users on sidebar if we are on the live camera view
+    if (activeView === "view-live-camera") {
+      updateLiveInViewList();
+    }
+  }catch(e){
+    // Ignore server ready latency
+  }
+}
+
+// WebSocket real-time updates
+function connectWS(){
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  ws = new WebSocket(`${proto}://${location.host}/ws`);
+  
+  ws.onmessage = (msg) => {
+    const data = JSON.parse(msg.data);
+    
+    if(data.type === "new_detection"){
+      // Insert new log entry in frontend memory
+      allEntries.unshift(data.entry);
+      
+      // Update counters immediately
+      const total = document.getElementById("stat-total");
+      total.textContent = parseInt(total.textContent) + 1;
+      
+      if(data.entry.status === "unknown"){
+        const u = document.getElementById("stat-unknown");
+        u.textContent = parseInt(u.textContent) + 1;
+        showToast(`🔔 พบคนแปลกหน้าตรวจสแกนเวลา ${data.entry.time.split("T")[1]}`, "info");
+      } else {
+        const k = document.getElementById("stat-known");
+        k.textContent = parseInt(k.textContent) + 1;
+        showToast(`✅ ยืนยันตัวตนสำเร็จ: คุณ ${data.entry.name}`, "success");
+      }
+      
+      renderTable();
+    } else if(data.type === "stats_update"){
+      document.getElementById("stat-inview").textContent = data.in_view;
+      document.getElementById("in-view-side-count").textContent = data.in_view;
+      if (activeView === "view-live-camera") {
+        updateLiveInViewList();
+      }
+    } else if(data.type === "attendance"){
+      const e = data.entry;
+      if (e.type === "check_in") {
+        showToast(`🟢 ${e.name} เข้างาน ${e.time}`, "success");
+      } else if (e.type === "check_out") {
+        showToast(`🔵 ${e.name} ออกงาน ${e.time}`, "info");
+      }
+      // ถ้ากำลังดูหน้าบันทึกเข้างานอยู่ อัปเดตตารางทันที
+      if (activeView === "view-attendance") {
+        loadAttendance();
+      }
+    }
+  };
+  
+  ws.onclose = () => {
+    console.log("WebSocket Disconnected. Reconnecting in 2s...");
+    setTimeout(connectWS, 2000);
+  };
+}
+
+// Update the list of active people in Live Camera View
+function updateLiveInViewList() {
+  const container = document.getElementById("in-view-list-container");
+  
+  // Collect currently detected names from results cache or WebSocket data
+  // We can scan allEntries for names detected within leave_timeout threshold
+  const now = new Date();
+  const activeThreshold = 6000; // 6 seconds
+  
+  const activeNamesMap = new Map();
+  
+  allEntries.forEach(entry => {
+    const entryTime = new Date(entry.time);
+    const diff = now - entryTime;
+    if (diff < activeThreshold) {
+      if (!activeNamesMap.has(entry.name)) {
+        activeNamesMap.set(entry.name, {
+          name: entry.name,
+          status: entry.status,
+          time: entry.time,
+          snapshot: entry.snapshot
+        });
+      }
+    }
+  });
+
+  const activeList = Array.from(activeNamesMap.values());
+
+  if (activeList.length === 0) {
+    container.innerHTML = `<div style="padding: 40px 0; text-align: center; color: var(--text-dim); font-size: 13px;">ไม่มีใครอยู่หน้ากล้องขณะนี้</div>`;
+    return;
+  }
+
+  container.innerHTML = activeList.map(p => {
+    const filename = p.snapshot.split(/[\\/]/).pop();
+    const snapUrl = `/api/snapshot/${encodeURIComponent(p.name)}/${encodeURIComponent(filename)}`;
+    const initials = p.name.substring(0, 2).toUpperCase();
+    const avatar = snapUrl ? `<img class="in-view-avatar" src="${snapUrl}" alt="profile">` : `<div class="in-view-avatar">${initials}</div>`;
+    const label = p.status === "known" ? "พนักงานที่ยืนยัน" : "บุคคลภายนอก";
+    const labelColor = p.status === "known" ? "var(--success)" : "var(--warning)";
+    
+    return `
+      <div class="in-view-item">
+        ${avatar}
+        <div class="in-view-info">
+          <div class="in-view-name">${p.name}</div>
+          <div class="in-view-role" style="color: ${labelColor}; font-weight:600;">${label}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// --- STAFF AND VISITORS LOGIC ---
+async function loadStaff() {
+  const label = document.getElementById("staff-count-label");
+  label.textContent = "กำลังโหลดข้อมูลพนักงาน...";
+  
+  try {
+    const res = await fetch("/api/known_faces");
+    const data = await res.json();
+    knownPeople = data.people;
+    renderStaffGrid();
+  } catch (e) {
+    console.error("Failed to load staff list", e);
+    showToast("โหลดข้อมูลทะเบียนล่าช้าหรือไม่สำเร็จ", "error");
+  }
+}
+
+function renderStaffGrid() {
+  const grid = document.getElementById("staff-grid-container");
+  const q = document.getElementById("staff-search").value.trim().toLowerCase();
+  
+  const filtered = knownPeople.filter(p => p.name.toLowerCase().includes(q));
+  document.getElementById("staff-count-label").textContent = `ทะเบียนพนักงานระบบ ทั้งหมด ${knownPeople.length} คน`;
+  
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column: 1/-1; padding: 80px 0; text-align: center; color: var(--text-dim); background:#fff; border: 1px dashed var(--border); border-radius:12px;">
+        ไม่พบข้อมูลตามคำค้นหา
+      </div>`;
+    return;
+  }
+  
+  grid.innerHTML = filtered.map(p => {
+    // If we have a reference profile picture, load it
+    const profileUrl = p.first_image ? `/api/known_face_image/${encodeURIComponent(p.name)}/${encodeURIComponent(p.first_image)}` : "";
+    const initials = p.name.substring(0, 2).toUpperCase();
+    
+    return `
+      <div class="staff-card">
+        <button class="delete-btn" title="ลบพนักงาน" onclick="confirmDeleteFace('${p.name}')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+        ${profileUrl ? `<img class="profile-img" src="${profileUrl}" alt="profile image">` : `<div class="profile-img" style="display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:var(--text-dim);">${initials}</div>`}
+        <h4>${p.name}</h4>
+        <span class="photo-cnt">จำนวนรูปภาพ: ${p.photo_count} รูป</span>
+      </div>
+    `;
+  }).join("");
+}
+
+async function confirmDeleteFace(name) {
+  if (confirm(`คุณต้องการลบข้อมูลสแกนของ "${name}" ออกจากระบบและฐานข้อมูลถาวรหรือไม่?`)) {
+    try {
+      const res = await fetch(`/api/known_faces/${encodeURIComponent(name)}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`ลบข้อมูล "${name}" เรียบร้อยแล้ว`, "success");
+        loadStaff();
+      } else {
+        showToast(`ลบไม่สำเร็จ: ${data.error}`, "error");
+      }
+    } catch(e) {
+      showToast("ล้มเหลวในการเชื่อมต่อเซิร์ฟเวอร์", "error");
+    }
+  }
+}
+
+// --- CONFIG PAGE LOGIC ---
+async function loadConfig() {
+  try {
+    const res = await fetch("/api/config");
+    const cfg = await res.json();
+    
+    // AI section
+    document.getElementById("cfg-distance-thresh").value = cfg.distance_thresh;
+    document.getElementById("val-distance-thresh").textContent = cfg.distance_thresh;
+    
+    document.getElementById("cfg-min-confidence").value = cfg.min_confidence;
+    document.getElementById("val-min-confidence").textContent = cfg.min_confidence;
+    
+    // System section
+    document.getElementById("cfg-camera-source").value = cfg.camera_source;
+    document.getElementById("cfg-leave-timeout").value = cfg.leave_timeout;
+    
+    document.getElementById("cfg-smooth-alpha").value = cfg.smooth_alpha;
+    document.getElementById("val-smooth-alpha").textContent = parseFloat(cfg.smooth_alpha).toFixed(2);
+    
+    document.getElementById("cfg-process-every").value = cfg.process_every;
+    
+    document.getElementById("cfg-scale").value = cfg.scale;
+    document.getElementById("val-scale").textContent = cfg.scale;
+    
+    document.getElementById("cfg-snap-unknown").checked = cfg.snap_unknown;
+  } catch (e) {
+    showToast("โหลดคอนฟิกไม่สำเร็จ", "error");
+  }
+}
+
+async function saveConfig(e) {
+  e.preventDefault();
+  const distance_thresh = parseFloat(document.getElementById("cfg-distance-thresh").value);
+  const min_confidence = parseFloat(document.getElementById("cfg-min-confidence").value);
+  
+  await updateConfig({ distance_thresh, min_confidence });
+}
+
+async function saveSystemConfig(e) {
+  e.preventDefault();
+  const camera_source = document.getElementById("cfg-camera-source").value.trim();
+  const leave_timeout = parseFloat(document.getElementById("cfg-leave-timeout").value);
+  const smooth_alpha = parseFloat(document.getElementById("cfg-smooth-alpha").value);
+  const process_every = parseInt(document.getElementById("cfg-process-every").value);
+  const scale = parseFloat(document.getElementById("cfg-scale").value);
+  const snap_unknown = document.getElementById("cfg-snap-unknown").checked;
+  
+  await updateConfig({ camera_source, leave_timeout, smooth_alpha, process_every, scale, snap_unknown });
+}
+
+async function updateConfig(payload) {
+  try {
+    const res = await fetch("/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast("บันทึกการตั้งค่าระบบเรียบร้อยแล้ว", "success");
+      loadConfig();
+    } else {
+      showToast("ไม่สามารถอัปเดตการตั้งค่าได้", "error");
+    }
+  } catch (e) {
+    showToast("เกิดข้อผิดพลาดในการบันทึกค่าคอนฟิก", "error");
+  }
+}
+
+// --- QUICK REGISTER LOGIC ---
+async function startRegister(){
+  const name = document.getElementById("reg-name").value.trim();
+  const statusEl = document.getElementById("reg-status");
+  const shotsEl = document.getElementById("reg-shots");
+  
+  if(!name){
+    statusEl.textContent = "❌ กรุณาระบุชื่อก่อนเริ่มถ่ายภาพ";
+    statusEl.style.color = "var(--danger)";
+    return;
+  }
+
+  statusEl.textContent = "📷 กำลังจับภาพสแกน 5 ช็อตจากกล้องหลัก... กรุณาหันหน้าเข้าหากล้อง";
+  statusEl.style.color = "var(--primary)";
+  shotsEl.innerHTML = "";
+
+  const shots = [];
+  const camImg = document.getElementById("cam-img");
+
+  // Attempt to draw from stream frame canvas
+  for(let i = 0; i < 5; i++){
+    await new Promise(r => setTimeout(r, 800));
+    const canvas = document.createElement("canvas");
+    canvas.width = camImg.naturalWidth || 1280;
+    canvas.height = camImg.naturalHeight || 720;
+    const ctx = canvas.getContext("2d");
+    try{
+      ctx.drawImage(camImg, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      shots.push(dataUrl);
+      
+      const thumb = document.createElement("img");
+      thumb.src = dataUrl;
+      shotsEl.appendChild(thumb);
+      statusEl.textContent = `📷 บันทึกภาพที่ ${i+1}/5...`;
+    }catch(e){
+      console.error("Quick Register capture failed", e);
+    }
+  }
+
+  statusEl.textContent = "💾 กำลังลงทะเบียนหน้าบนเซิร์ฟเวอร์ฐานข้อมูล...";
+  statusEl.style.color = "var(--text-dim)";
+  
+  try{
+    const res = await fetch(`${API}/api/register`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({name, images_base64: shots})
+    });
+    const data = await res.json();
+    if(data.success){
+      statusEl.textContent = `✅ สำเร็จ! ลงทะเบียน "${name}" ด้วยภาพถ่าย ${data.saved_count} ใบ`;
+      statusEl.style.color = "var(--success)";
+      document.getElementById("reg-name").value = "";
+      showToast(`ลงทะเบียนคุณ ${name} สำเร็จ`, "success");
+      loadStaff();
+    }else{
+      statusEl.textContent = `❌ ผิดพลาด: ${data.error || "ไม่สามารถเซฟรูปภาพลงทะเบียนได้"}`;
+      statusEl.style.color = "var(--danger)";
+      showToast("ลงทะเบียนไม่สำเร็จ", "error");
+    }
+  }catch(e){
+    statusEl.textContent = "❌ ไม่สามารถติดต่อเซิร์ฟเวอร์ได้";
+    statusEl.style.color = "var(--danger)";
+    showToast("เกิดข้อผิดพลาดในการลงทะเบียน", "error");
+  }
+}
+
+// Export CSV Logs
+function exportCSV(){
+  if(allEntries.length === 0){ 
+    showToast("ไม่มีข้อมูลในตารางให้ส่งออก", "warning");
+    return; 
+  }
+  const header = "ID,Name,Type,Timestamp,Result\n";
+  const rows = allEntries.map((e,i) => `${i+1},${e.name},${e.status==="known"?"พนักงาน":"บุคคลทั่วไป"},${e.time},${e.status}`).join("\n");
+  
+  // Support UTF-8 encoding for Excel
+  const bom = "\uFEFF";
+  const blob = new Blob([bom + header + rows], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; 
+  a.download = `face_log_${todayStr()}.csv`;
+  a.click();
+  showToast("ดาวน์โหลดไฟล์ CSV เรียบร้อยแล้ว", "success");
+}
+
+// Initialize application state
+setToday();
+pollStatus();
+setInterval(pollStatus, 2500);
+connectWS();
+// ================= ATTENDANCE (บันทึกเข้างาน) =================
+let _attendanceData = [];
+
+function attDateStr(){
+  const el = document.getElementById("att-date");
+  if (el && el.value) return el.value;
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+async function loadAttendance(){
+  // ตั้งวันที่ default เป็นวันนี้ถ้ายังว่าง
+  const el = document.getElementById("att-date");
+  if (el && !el.value) el.value = attDateStr();
+  const date = attDateStr();
+  try {
+    const r = await fetch(`/api/attendance?date=${date}`);
+    const d = await r.json();
+    _attendanceData = d.records || [];
+    document.getElementById("att-present").textContent = d.summary.present;
+    document.getElementById("att-stillin").textContent = d.summary.still_in;
+    document.getElementById("att-strangers").textContent = d.summary.strangers;
+
+    const body = document.getElementById("att-body");
+    if (!_attendanceData.length){
+      body.innerHTML = `<tr><td colspan="5" style="padding:14px; color:var(--text-dim,#8b98a9);">ยังไม่มีใครเข้างานในวันนี้</td></tr>`;
+    } else {
+      body.innerHTML = _attendanceData.map(rec => {
+        const out = rec.check_out || "—";
+        const hrs = rec.work_hours || "—";
+        const status = rec.check_out
+          ? `<span style="color:#8b98a9;">ออกแล้ว</span>`
+          : `<span style="color:#22c55e;">● อยู่ในออฟฟิศ</span>`;
+        return `<tr style="border-top:1px solid var(--border,#2a3240);">
+          <td style="padding:10px; font-weight:600; color:#ffffff;">${rec.name}</td>
+          <td style="padding:10px; color:#e6edf3;">${rec.check_in}</td>
+          <td style="padding:10px; color:#e6edf3;">${out}</td>
+          <td style="padding:10px; color:#e6edf3;">${hrs}</td>
+          <td style="padding:10px;">${status}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    // คนแปลกหน้า
+    const sr = await fetch(`/api/attendance/strangers?date=${date}`);
+    const sd = await sr.json();
+    const box = document.getElementById("att-strangers-list");
+    if (!sd.strangers || !sd.strangers.length){
+      box.innerHTML = `<span style="color:var(--text-dim,#8b98a9);">ไม่มี</span>`;
+    } else {
+      box.innerHTML = sd.strangers.map(s => {
+        const t = (s.time.split("T")[1] || "").substring(0,8);
+        const parts = (s.snapshot||"").split(/[\\/]/);
+        const fn = parts.pop(), pn = parts.pop();
+        const img = s.snapshot ? `<img src="/api/snapshot/${pn}/${fn}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">` : "";
+        return `<div style="text-align:center;">${img}<div style="font-size:11px; color:#8b98a9; margin-top:4px;">${t}</div></div>`;
+      }).join("");
+    }
+  } catch(e){
+    console.error("loadAttendance error", e);
+  }
+}
+
+function exportAttendanceCSV(){
+  if (!_attendanceData.length){ showToast("ไม่มีข้อมูลให้ export", "info"); return; }
+  const date = attDateStr();
+  let csv = "ชื่อ,วันที่,เวลาเข้า,เวลาออก,ชั่วโมงทำงาน\n";
+  csv += _attendanceData.map(r =>
+    `${r.name},${date},${r.check_in},${r.check_out||""},${r.work_hours||""}`
+  ).join("\n");
+  const blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `attendance_${date}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+</script>
+
+</body>
+</html>
