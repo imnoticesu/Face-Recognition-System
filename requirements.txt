@@ -1,7 +1,8 @@
 fastapi
 uvicorn[standard]
-opencv-python
-deepface
+gunicorn
+opencv-python-headless
+deepface==0.0.79
 tf-keras
-numpy
+numpy<2
 python-multipart
