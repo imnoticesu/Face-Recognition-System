@@ -1,7 +1,8 @@
 fastapi
 uvicorn[standard]
-opencv-python
-deepface
+opencv-python-headless
+numpy<2.0
 tf-keras
-numpy
+tensorflow<2.16
+deepface
 python-multipart
